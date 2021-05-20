@@ -1,0 +1,26 @@
+@charset "UTF-8";
+table {
+	text-align: center;
+	font-size: 0.8rem;
+}
+thead {
+	background-color: #014099;
+	color: white;
+}
+.btn-studyRoom {
+	border: 2px solid lightgray;
+	text-align: center;
+	margin-bottom: 50px;
+	margin-left: 20px;
+}
+.btn-studyRoom:hover {
+	background-color: #014099;
+	color: white;
+}
+.btnDiv{
+	text-align: center;
+}
+.cancelBtn:hover {
+	background-color: #c71818;
+	color: white;
+}

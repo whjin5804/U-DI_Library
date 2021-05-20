@@ -1,0 +1,92 @@
+
+
+html, body{
+	margin:0;
+	padding:0;
+	height: 100%;
+	width: 100%;
+	font-family: 'Noto Sans KR', sans-serif;
+	overflow-x:hidden; 
+}
+.container{
+	padding: 0;
+	margin: 0;
+	height: 100%;
+	width: 100%;
+	max-width: 100%;
+}
+.topMenu{
+	position: fixed;
+	top:0;
+	width:100%;
+	padding:0;
+	margin:0;
+	height: 100px;
+	z-index: 1;
+	/* 메뉴바 색상 */
+	background-color : #014099;
+	-webkit-transition-duration:0.4s;
+	-webkit-transition-timing-function:ease;
+	transition-duration:0.4s;
+	transition-timing-function:ease;
+}
+
+.main{
+	padding: 0;
+	margin: 0;
+	margin-top:100px;
+	width: 100%;
+	height: 100%;
+	background: none;
+}
+.footer{
+	padding: 0;
+	margin: 0;
+	margin-bottom: 50px;
+	height: 30%;
+	background-color: #333333;
+	color: white;
+	font-size: 0.85rem;
+	width: 100%;
+}
+
+/* 화면 좌우상하 간격 */
+.audi3040, .Audi3040{
+	margin: 130px 250px;
+}
+
+.hr{
+	background-color: #757575;
+}
+.list{
+	margin-right: 50px;
+}
+.listTitle{
+	font-weight: bold;	
+}
+.aTag:link, .aTag:visited{
+	text-decoration: none;
+	color: white;
+}
+
+/* jumbotron */
+.headJubmotron{
+	height: 110px; padding: 36px 0;
+	
+}
+
+.h1Jumbotron{
+	
+	text-align: center; font-size: 28px;
+}
+
+.pJumbotron{
+	text-align: center; font-size: 13px;
+}
+
+.btn-primary{
+	background-color: #014099;
+	color: white;
+	
+}
+/* jumbotron 끝*/

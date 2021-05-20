@@ -1,0 +1,15 @@
+/* 상하130으로 하기로 함*/
+
+
+.studyMenu a{
+	color: #014099;
+	font-weight: bold;
+}
+.calHeadTr{
+background-color: #014099; color: white; font-weight: bold;
+}
+
+.calBodyTr{
+	font-weight: bold;
+}
+

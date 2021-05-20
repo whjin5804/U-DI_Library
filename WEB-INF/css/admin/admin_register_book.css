@@ -1,0 +1,10 @@
+@charset "UTF-8";
+.btnBlue{
+	margin-top: 80px;
+	background-color: #014099;
+	color: white;
+}
+.registerBookDiv{
+	width: 600px;
+	margin: 0 auto;
+}

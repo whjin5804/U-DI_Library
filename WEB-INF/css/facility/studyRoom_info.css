@@ -1,0 +1,33 @@
+.data-group{
+	margin-bottom: 35px;
+}
+
+.data-group h5{
+	font-weight: bold;
+}
+
+.dot-text-list lg li{
+	font-size: 12px;
+}
+
+
+.usingTimeLi li{
+	font-size: 15px;
+}
+
+
+li{
+	text-align: left;
+}
+
+.centerTr{
+	text-align: center;
+	border: 1px solid black;
+	font-weight: bold;
+	background-color: #014099;
+	color: white;
+}
+
+.readonly ,tr, td{
+	border: 1px solid black;
+}

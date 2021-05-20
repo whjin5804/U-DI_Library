@@ -1,0 +1,46 @@
+
+#searchBar{
+	border: 1px solid black;
+	padding: 15px;
+}
+
+input{
+	height: 37px;
+}
+
+select {
+	height: 37px;
+}
+
+.btnDiv{
+	padding-left: 0;
+}
+
+.searchName{
+	padding-right: 1px;
+	width: 170px;
+	max-width: 15.2%;
+}
+
+#eventListTable{
+	margin: 0 auto;
+	border: 1px solid black;
+	border-collapse: collapse;
+	text-align: center;
+	width: 100%;
+	margin-top: 20px;
+}
+
+
+.table{
+	margin-top: 20px;
+}
+
+tr, td{
+	text-align: center;
+}
+
+#lectureModalHead{
+    color: black;
+    margin: 0 auto;
+}

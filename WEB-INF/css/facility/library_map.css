@@ -1,0 +1,21 @@
+
+.box{
+	display: inline-block;
+}
+
+.box1{
+	float: left;
+	display: inline-block;
+	width: 19%;
+}
+
+.box2{
+	float: right;
+	display: inline-block;
+	width: 80%;
+}
+
+.block{
+	display: block;
+	margin-bottom: 5px;
+}

@@ -1,0 +1,48 @@
+@charset "UTF-8";
+.tableCaption{
+	caption-side: top;
+}
+.table{
+	text-align: center;
+}
+.gray{
+	background-color: #F2F2F2;
+}
+.calender{
+	text-align: center;
+	margin: 0 auto;
+	margin-bottom: 30px;
+	width: 200px;
+}
+.selectDateDiv{
+	margin: 0 auto;
+	font-size: 1.15rem;
+	font-weight: bold;
+	color: #014099;
+	width: 250px;
+	margin-bottom: 10px;
+}
+.btn-outline-success {
+    color: #014099;
+    border-color: #014099;
+}
+.btn-outline-success:hover {
+	background-color: #014099;
+}
+.table-search{
+	width: 300px;
+	margin: 0 auto;
+	margin-bottom: 50px;
+}
+.table-search td{
+	padding: 0px;
+}
+.color{
+	background-color: #014099;
+	color: white;
+}
+.inUse{
+	background-color: #c82222;
+	color: white;
+	font-weight: bold;
+}

@@ -1,0 +1,204 @@
+
+input[type=checkbox] {
+-ms-transform: scale(2); /* IE */
+-moz-transform: scale(2); /* FF */
+-webkit-transform: scale(2); /* Safari and Chrome */
+-o-transform: scale(2); /* Opera */
+padding: 10px;
+}
+
+.rentTime{
+margin-right: 10px;
+}
+
+/* 모달창크기 */
+#modal-content {
+    width: 50vw;
+    height: 95vh;
+    left: 80%;
+    top: 50%;
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: .3rem;
+    outline: 0;
+}
+
+
+#modal-body{
+/* 	margin: 0 auto; */
+	text-align: center;
+	position: relative;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
+.calendar{
+	margin-bottom: 18px;
+}
+
+/* 평일 */
+.cursor{
+	color : black;
+
+}
+
+.cursor:hover{
+	cursor: pointer;
+	text-decoration: none;
+	font-size: 1.3rem;
+}
+
+/* 토요일 */
+.cursorsat{
+	color : blue;
+}
+
+.cursorsat:hover{
+	cursor: pointer;
+	text-decoration: none;
+	font-size: 1.3rem;
+}
+
+/* 일요일*/
+.cursorsun{
+	color: red;
+}
+
+/* 일요일에 마우스 올릴때 */
+.cursorsun:hover {
+	cursor: pointer;
+	text-decoration: none;
+	font-size: 1.3rem;
+}
+
+
+ul{
+	list-style:none;
+}
+
+.usingTimeRow{
+	margin: 0 auto;
+}
+
+
+/* 사용시간 모달 크기 */
+#modal-content-studyRoom {
+    width: 30vw;
+    height: 85vh;
+    left: 120%;
+    top: 70%;
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: .3rem;
+    outline: 0;
+}
+
+
+/* 달력 */
+tr, td{
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 17px;
+/*     border:2px gray black; */
+}
+
+/* 사용시간 테이블 */
+#timeTableModal{
+	width: 350px;
+}
+
+
+/* reservation status */
+.reser_wrap {width:1200px; margin:100px auto 0;}
+.reser_wrap:after {display:block;visibility:hidden;clear:both;content:""}
+
+#calendar{width:800px; float:left; margin-right:30px;}
+#add-calendar {position:relative;}
+.cal_cover {position:absolute; left:0; top:0; width:800px; height:538px; background:rgba(0,0,0,0.7); z-index:99}
+
+#reser_list {width:370px; height:300px;  float:left; margin-top:50px;}
+#reser_list h2 {text-align:right; font-size: 21px; font-weight: 400; border-bottom:1px solid #111; padding-bottom:10px;}
+
+.reser_form {}
+.reser_form ul {padding:10px; box-sizing:border-box;}
+.reser_form ul li {font-size:15px; margin-bottom:20px;}
+.reser_form ul li label {display:inline-block; width:120px; vertical-align:middle;}
+.reser_form ul li input {display:inline-block; width:200px; vertical-align:middle; border:none; border-bottom:1px solid #e1e1e1; padding:7px 0;}
+.reser_form ul li input[type=button] {margin-top:20px; width:100%; background:#228774; color:#fff; font-weight:500; cursor:pointer;}
+.reser_form ul li select {display:inline-block; width:200px; vertical-align:middle; background:#fff; border:none; border-bottom:1px solid #e1e1e1; padding:7px 0;}
+
+.title_notice {font-size:21px; color:#d01919; text-align:center; text-decoration:underline;}
+
+/* Seat reservation layout */
+
+.sub_head {background:#2a3b73; height:350px; position:relative;}
+.sub_head h2 {color:#fff; font-size:55px; font-weight:500; text-align:center; padding-top:120px; position:relative;}
+.sub_title h2 span {display: block; font-size: 22px; color: #abb5d4; font-weight: 400;}
+
+#clock {position:absolute; top:30px; right:40px; color:#fff; font-size:27px; font-weight:500}
+#clock span {}
+
+#use_count {position:absolute; bottom:30px; left:40px; color:#fff; font-size:25px; font-weight:500}
+
+.logout {position:absolute; top:110px; left:40px; font-size:100px; color:#fff;}
+
+.mileage_btn {position:absolute; bottom:30px; right:40px;}
+.mileage_btn input {width:230px; height:70px; border-radius:3px; background:#ffa62e; color:#fff; font-weight:500; border:none; font-size:25px; cursor:pointer;}
+
+.mileage_cost {font-size:19px; width:15%; padding:10px 0 !important;}
+.mileage_cost:nth-child(2) {background:#8ab0ca}
+.mileage_cost:nth-child(3) {background:#b4cdde}
+.mileage_cost:nth-child(4) {background:#d7e5ef}
+.mileage_cost:nth-child(5) {background:#ecf3f8}
+
+.reset {position:absolute; right:52px; top:5px; font-size:25px; font-weight:600; background:#d7e5ef; padding:5px 13px; cursor:pointer;}
+
+.none {display:none}
+.block {display:block}
+
+#sit_edit_table {margin:200px auto 50px; position:relative;}
+#sit_edit_table .tab_01 {margin:0 auto;}
+
+.title {position:relative;}
+.title .tab {position:absolute; left:50%; top:-130px; transform:translateX(-50%);}
+.title .tab ul {}
+.title .tab ul li {display:inline-block;}
+.title .tab ul li a {display:block; width:200px; height:60px; text-align:center; font-size:21px; border:1px solid #465989; line-height:60px; color:#465989; font-weight:500; border-radius:3px}
+
+
+#sit_view {margin:320px auto 200px; position:relative;}
+.row {margin:0 auto; position:relative;}
+
+.status {position:absolute; left:500px; top:-80px;}
+.status p {font-size:17px; color:#333; font-weight:500; position:relative;}
+.status p.ok:after {content: ''; position: absolute; left: -40px; top: 6px; width: 30px; height: 15px; border-radius: 3px; background: #465989;}
+.status p.no:after {content: ''; position: absolute; left: -40px; top: 6px; width: 30px; height: 15px; border-radius: 3px; background: #b54a4a;}
+
+.title .tab {position:absolute; left:50%; top:-170px; transform:translateX(-50%);}
+.title .tab ul {}
+.title .tab ul li {display:inline-block; margin:0;}
+.title .tab ul li a {display:block; width:200px; height:60px; text-align:center; font-size:21px; border:1px solid #465989; line-height:60px; color:#465989; font-weight:500; border-radius:3px; padding:0;}
+
+
+.tab_01{width: 1050px; height: 1000px;background-size: 100%; background:url(../img/seat_bg.png) no-repeat -12px 125px;}
+.column {position:absolute; cursor:pointer; width:54px; height: 54px; line-height: 54px; text-align:center; background:#465989; font-size:19px; color:#fff; font-weight:500; letter-spacing:-0.07em}
+.magnifying {position:absolute;}
+
+
+

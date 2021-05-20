@@ -1,0 +1,159 @@
+#video {
+     position: flex;
+     top: 0px;
+     left: 0px;
+     min-width: 100%;
+     min-height: 100%;
+     width: auto;
+     height: auto;
+     z-index: 1;
+     overflow: hidden;
+     display: block;
+}
+
+/* 채팅창 위치조정 */
+#chattingImg, .chattDiv{
+   position: absolute; 
+   right: 0px; 
+   bottom: 100px;
+   width:230px;
+   left: 85.8%;
+   top: 45%;
+}
+
+/* 시작페이지 첫화면 꼭대기에서 탑 메뉴 투명하게 만듦 */
+.topMenu{
+	background-color : rgba(255, 255, 255, 0);
+}
+
+
+.offTop{
+	color: white;
+}
+/* 시작페이지 첫화면이 꼭대기에서 스크롤 다운 했을때 탑메뉴 색 바뀜 */
+.offTop{
+	background-color: #014099;/* 바뀐 탑메뉴의 색 지정 */
+	color: white;
+	-webkit-transition-duration:0.4s;
+	-webkit-transition-timing-function:ease;
+	transition-duration:0.4s;
+	transition-timing-function:ease;
+	height: 11%;
+}
+.main{
+	margin-top: 0;
+}
+
+
+/* 처음오셨어요 모달 시작 */
+.videoBox {/* 비디오위에 사진띄우게하기 */
+	overflow: hidden;margin: 0px auto; position: relative;
+}
+
+/* 처음오셨소 위치 */
+.helloBtn{
+	position: absolute;
+	top: 60%;
+	left : 85%;
+	width: 13%;
+	text-align: right;
+}
+
+img{
+	margin-right: 15px;
+}
+
+.toHorizontal{/* 모달 li태그 눕히기 */
+	list-style-type: none;
+	display: inline-block;
+	margin-left: 75px;
+}
+
+
+.helloModal {	/* 모달창 화면크기와 위치 */
+    background-image: url('/resources/image/home/첫방문 모달배경.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+    width: 500px;
+    height: 500px;
+    left: 150%;
+    top: 253px;
+}
+
+.modal-header{/* 모달 내부 header 처음오셨어요 글자 */
+	margin: 0px;
+}
+.modalCloseBtn{
+	color: white;
+	text-align: right;
+	margin-top: 3px;
+	margin-right: 5px;
+}
+.visitPop{
+	margin-top: 130px;
+	margin-left: 20px;
+}
+.modalMenu{
+	color: #4c4c4c;
+	font-weight: bold;
+	font-size: 1.2rem;
+	margin-left: 10px;
+}
+.modalMenuMap{
+	margin-left: 0px;
+}
+.modalMenuA:hover{
+	text-decoration: none;
+}
+.modalUl{
+	margin: 0 auto;
+	margin-bottom: 0px;
+	padding-left: 0px;
+}
+/* 처음오셨어요 모달 끝 */
+
+
+/* 팝업레이어 시작 */
+#pop{/* 팝업레이어 자체 크기와 디자인 */
+	width: 370px;
+	height: 400px;
+	position: absolute;
+	border: 1px solid black;
+	/* 화면위치 */
+	left: 40%;
+    bottom: 75%;
+}	
+
+#close{/* close글자 */
+	color: white;
+	background-color: #014099;
+	text-align: right;
+}	
+
+.closeDiv{/* close가 속한 div 색깔맞춤 */
+	background-color: #014099;
+	height: 26px;
+}	
+
+.cloCl:hover{/* close에 마우스 올렸을때 */
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1.1rem;
+}	
+/* 팝업레이어 끝 */
+
+.footer{
+	padding: 0;
+	margin: 0;
+	margin-bottom: 50px;
+	height: 30%;
+	background-color: #333333;
+	color: white;
+	font-size: 0.85rem;
+	width: 100%;
+}
+
+.hr{
+	background-color: #757575;
+}
+

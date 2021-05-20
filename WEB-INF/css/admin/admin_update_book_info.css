@@ -1,0 +1,40 @@
+@charset "UTF-8";
+table {
+	text-align: center;
+	font-size: 0.8rem;
+}
+
+input[type=text] {
+	width: 100px;
+}
+
+thead {
+	background-color: #014099;
+	color: white;
+}
+.search{
+	text-align: right;
+	margin-bottom: 15px;
+}
+.paging{
+	text-align: center;
+	color: #078399;
+	margin-top: 50px;
+}
+.btn-outline-success {
+    color: #014099;
+    border-color: #014099;
+}
+.btn-outline-success:hover {
+	background-color: #014099;
+}
+.formRight{
+	display: block;
+}
+.changeBtn, .deleteBtn {
+	background-color: #F2F2F2;
+}
+.changeBtn:hover, .deleteBtn:hover {
+	background-color: #c71818;
+	color: white;
+}
