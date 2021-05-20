@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 모든 SQL문을 mapper태그 안에 작성 -->
+<mapper namespace="bookRentMapper">
+	<!-- resultMap 작성 -->
+	<resultMap type="Audi_Lib.bookRent.vo.BookRentVO" id="bookRent">
+		<id column="RENT_CODE"					property="rentCode"/>
+		<result column="RENT_MEMBER"			property="rentMember"/>
+		<result column="RENT_BOOK_CODE"			property="rentBookCode"/>
+		<result column="RENT_DATE"				property="rentDate"/>
+		<result column="RETURN_DATE"			property="returnDate"/>
+		<result column="IS_RETURN"				property="isReturn"/>
+		<result column="LATE_DAY"				property="lateDay"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.bookRent.vo.BookRentCountVO" id="bookRentCount">
+		<id column="BOOK_CODE" 					property="bookCode"/>
+		<result column="RENT_COUNT_IN_MONTH" 	property="rentCountInMonth"/>
+		<result column="RENT_COUNT_TOTAL" 		property="rentCountToTal"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.bookRent.vo.BookRentViewVO" id="bookRentView">
+		<id column="BOOK_CODE"					property="bookCode"/>
+		<result column="BOOK_TITLE"				property="bookTitle"/>
+		<result column="PUBLISHER"				property="publisher"/>
+		<result column="AUTHOR"					property="author"/>
+		<result column="BOOK_PUBLICATION_DATE"	property="bookPublicationDate"/>
+		<result column="ACQUISITION_DATE"		property="acquisitionDate"/>
+		<result column="BOOK_IMAGE_NAME"		property="bookImageName"/>
+		<result column="BOOK_CLASS"				property="bookClass"/>
+		<result column="BOOK_CLASS_NAME"		property="bookClassName"/>
+		<result column="RENT_CODE"				property="rentCode"/>
+		<result column="RENT_DATE"				property="rentDate"/>
+		<result column="RETURN_DATE"			property="returnDate"/>
+		<result column="IS_RETURN"				property="isReturn"/>
+		<result column="RENT_MEMBER"			property="rentMember"/>
+	</resultMap>
+	<insert id="insertRentBookProcedure" statementType="CALLABLE">
+		{CALL INSERT_BOOK_RENT(
+				#{rentMember}
+				, #{rentBookCode}
+			)
+		}
+	</insert>
+	
+	<update id="updateMemberRentCount">
+		UPDATE LIB_MEMBER
+		SET
+			MEMBER_RENT_COUNT = MEMBER_RENT_COUNT + 1
+		WHERE MEMBER_CODE = #{rentMember}
+	</update>
+	
+	<update id="updateMemberLevelProcedure">
+		{CALL LEVEL_UP(
+				#{rentMember}
+			)
+		}
+	</update>
+	
+	<insert id="insertRentCount">
+		MERGE INTO BOOK_RENT_COUNT
+		USING DUAL
+		ON(BOOK_CODE = #{rentBookCode})
+		WHEN MATCHED THEN
+		    UPDATE
+		    SET
+		        RENT_COUNT_IN_MONTH = RENT_COUNT_IN_MONTH + 1,
+		        RENT_COUNT_TOTAL = RENT_COUNT_TOTAL + 1
+		WHEN NOT MATCHED THEN
+		    INSERT (BOOK_CODE, RENT_COUNT_IN_MONTH, RENT_COUNT_TOTAL) VALUES (#{rentBookCode}, 1, 1)
+	</insert>
+	
+	<update id="updateClassRentCount">
+		UPDATE BOOK_CLASS
+		SET
+			BOOK_CLASS_RENT_COUNT = BOOK_CLASS_RENT_COUNT + 1
+		WHERE BOOK_CLASS = (SELECT BOOK_CLASS
+							FROM BOOK_INFO
+							WHERE BOOK_CODE = #{rentBookCode})
+	</update>
+	
+	<update id="updateBookInfoForRent">
+		UPDATE BOOK_INFO
+		SET
+			IS_AVAILABLE = 'N'
+		WHERE BOOK_CODE = #{rentBookCode}
+	</update>
+	
+	
+	<select id="allRentedBookListForMember" resultMap="bookRentView">
+		SELECT BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, ACQUISITION_DATE
+			, BOOK_CLASS_NAME
+			, RENT_CODE
+			, RENT_DATE
+			, RETURN_DATE
+			, IS_RETURN
+		FROM BOOK_RENT_VIEW
+		WHERE RENT_MEMBER = #{memberCode}
+		ORDER BY IS_RETURN, RENT_DATE DESC
+	</select>
+	
+	<select id="selectRentedBookListForMember" resultMap="bookRentView">
+		SELECT BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, ACQUISITION_DATE
+			, BOOK_CLASS_NAME
+			, RENT_CODE
+			, RENT_DATE
+			, RETURN_DATE
+		FROM BOOK_RENT_VIEW
+		WHERE IS_RETURN = 'N'
+		AND RENT_MEMBER = #{memberCode}
+	</select>
+	
+	<update id="updateRentedBookReturn" statementType="CALLABLE">
+		{CALL UPDATE_BOOK_RETURN(
+				#{rentCode}
+			)
+		}
+	</update>
+	
+	<update id="updateBookInfoForReturn">
+		UPDATE BOOK_INFO
+		SET
+			IS_AVAILABLE = 'Y'
+		WHERE BOOK_CODE = (SELECT RENT_BOOK_CODE
+							FROM BOOK_RENT_INFO
+							WHERE RENT_CODE = #{rentCode})
+	</update>
+	
+	<select id="memberLevelList" resultMap="memberMapper.level">
+		SELECT MEMBER_LEVEL
+			, AVAILABLE_RENT_DATE
+			, LEVEL_NAME
+			, AVAILABLE_RENT_BOOK_NUMBER
+		FROM LIB_MEMBER_LEVEL
+	</select>
+	
+	<select id="selectMemberLevelInfo" resultMap="memberMapper.level">
+		SELECT MEMBER_LEVEL
+			, AVAILABLE_RENT_DATE
+			, LEVEL_NAME
+			, AVAILABLE_RENT_BOOK_NUMBER
+		FROM LIB_MEMBER_LEVEL
+		WHERE MEMBER_LEVEL = (SELECT MEMBER_LEVEL
+								FROM LIB_MEMBER
+								WHERE MEMBER_CODE = #{memberCode})
+	</select>
+	
+	<select id="countRentedBook" resultType="int">
+		SELECT COUNT(RENT_CODE)
+		FROM BOOK_RENT_INFO
+		WHERE RENT_MEMBER = #{memberCode}
+		AND IS_RETURN = 'N'
+	</select>
+</mapper>

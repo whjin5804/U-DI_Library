@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 모든 SQL문을 mapper태그 안에 작성 -->
+<mapper namespace="facilityMapper">
+	<!-- resultMap 작성 -->
+	<resultMap type="Audi_Lib.facility.vo.FacilityVO" id="facility">
+		<id column="PARKING_CODE"      		property="parkingCode"/>
+		<result column="PARKING_PRICE"      property="parkingPrice"/>
+		<result column="IS_AFTERNOON"     	property="isAfternoon"/>
+		<result column="IS_PARKING"     	property="isParking"/>
+		<result column="FACILITY_CODE"      property="facilityCode"/>
+		<result column="PARKING_MEMBER"     property="parkingMember"/>
+		<result column="PARKING_DATE"       property="parkingDate"/>
+		<result column="PARKING_LOC"      	property="parkingLoc"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.facility.vo.ParkingViewVO" id="parkingView">
+		<id column="PARKING_CODE"      		property="parkingCode"/>
+		<result column="PARKING_PRICE"      property="parkingPrice"/>
+		<result column="IS_AFTERNOON"     	property="isAfternoon"/>
+		<result column="IS_PARKING"     	property="isParking"/>
+		<result column="FACILITY_CODE"      property="facilityCode"/>
+		<result column="PARKING_DATE"       property="parkingDate"/>
+		<result column="PARKING_LOC"      	property="parkingLoc"/>
+		<result column="MEMBER_NAME"      	property="memberName"/>
+		<result column="MEMBER_CODE"      	property="memberCode"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.facility.vo.StudyRoomInfoVO" id="studyRoomInfo">
+		<id column="STUDY_ROOM_CODE" 		property="studyRoomCode"/>
+		<result column="STUDY_ROOM_NAME" 	property="studyRoomName"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.facility.vo.StudyRoomRentInfoVO" id="studyRoomRent">
+		<result column="MEMBER_CODE" 		property="memberCode"/>
+		<result column="IS_RENT" 			property="isRent"/>
+		<result column="RENT_STU" 			property="rentStu"/>
+		<result column="RENT_DATE" 			property="rentDate"/>
+		<result column="FULL_RENT_DATE" 	property="fullRentDate"/>
+		<result column="ROOM_RENT_MEMBER" 	property="roomRentMember"/>
+		<result column="STUDY_ROOM_CODE" 	property="studyRoomCode"/>
+		<!-- <collection property="rentTime"/> -->
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.facility.vo.StudyRoomViewVO" id="studyRoomView">
+		<id column="STUDY_ROOM_CODE" 		property="studyRoomCode"/>
+		<result column="STUDY_ROOM_NAME" 	property="studyRoomName"/>
+		<result column="MEMBER_CODE" 		property="memberCode"/>
+		<result column="IS_RENT"			property="isRent"/>
+		<result column="RENT_TIME" 			property="rentTime"/>
+		<result column="RENT_DATE" 			property="rentDate"/>
+		<result column="RENT_STU" 			property="rentStu"/>
+		<result column="MEMBER_NAME" 		property="memberName"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.facility.vo.LectureVO" id="lecture">
+		<result column="LECTURE_CODE" 		property="lectureCode"/>
+		<result column="LECTURE_NAME" 		property="lectureName"/>
+		<result column="LECTURE_DATE"		property="lectureDate"/>
+		<result column="LECTURE_TIME"		property="lectureTime"/>
+		<result column="LECTURER" 			property="lecturer"/>
+		<result column="LECTURE_STATE" 		property="lectureState"/>
+		<result column="LECTURE_PLACE" 		property="lecturePlace"/>
+		<result column="FACILITY_CODE" 		property="facilityCode"/>
+		<result column="STUDY_ROOM_NAME" 	property="studyRoomName"/>
+		<result column="SEQ" 				property="seq"/>
+		<result column="RN" 				property="rownum"/>
+	</resultMap>		
+	
+	
+	
+	<select id="selectParkingOfParkingDate" resultMap="facility">
+		SELECT PARKING_LOC
+				, IS_AFTERNOON
+		FROM PARKING_INFO
+		WHERE PARKING_DATE = #{parkingDate}
+	</select>
+	
+	<!-- 포인트 조회 -->
+	<select id="howManyPoint" resultType="int">
+		SELECT MEMBER_POINT
+		FROM LIB_MEMBER
+		WHERE MEMBER_CODE = #{parkingMember}
+	</select>
+	
+	<!-- 포인트 깎기 -->
+	<update id="dropPointOfParking">
+		UPDATE LIB_MEMBER
+		SET MEMBER_POINT = MEMBER_POINT - 100
+		WHERE MEMBER_CODE = #{parkingMember}
+	</update>
+	
+	<update id="updatePointBecauseCancelReserve">
+		UPDATE LIB_MEMBER
+		SET MEMBER_POINT = MEMBER_POINT + 100
+		WHERE MEMBER_CODE = #{parkingMember}
+	</update>
+	
+	
+	<!-- 주차현황 넣기 -->
+	<insert id="reserveParking">
+		INSERT INTO PARKING_INFO (
+								PARKING_CODE
+								, PARKING_PRICE
+								, IS_AFTERNOON
+								, FACILITY_CODE
+								, PARKING_MEMBER
+								, PARKING_DATE
+								, PARKING_LOC
+		)VALUES(
+				(SELECT 'PARKING_' || NVL(MAX(TO_NUMBER(SUBSTR(PARKING_CODE, 9))) + 1, 1) FROM PARKING_INFO)
+				, 2000
+				, #{isAfternoon}
+				, 'FACILITY_2'	<!-- #{facilityCode} -->
+				, #{parkingMember}		<!-- 세션 #{parkingMember} -->
+				, #{parkingDate}
+				, #{parkingLoc}
+		)
+	</insert>
+	
+	<!-- 주차전에 이사람이 이날 주차했는지 확인 -->
+	<select id="isParkingTodayOfPerson" resultType="int">
+		SELECT COUNT(*)
+		FROM PARKING_INFO
+		WHERE PARKING_DATE = #{parkingDate}
+		AND PARKING_MEMBER = #{parkingMember}
+	</select>
+	
+	<!-- 주차 insert전에 주차되있는지 확인 -->
+	<select id="isParking" resultMap="facility">
+			select PARKING_CODE FROM PARKING_INFO
+			WHERE IS_AFTERNOON = #{isAfternoon} 
+			AND PARKING_DATE = #{parkingDate}
+			AND PARKING_LOC = #{parkingLoc}
+	</select>
+
+
+	<!-- 스터디룸 리스트 뽑기 -->
+	<select id="selectStudyRoomList" resultMap="studyRoomInfo">
+		SELECT STUDY_ROOM_CODE
+				, STUDY_ROOM_NAME
+		FROM STUDY_ROOM_INFO
+	</select>
+	
+	<!-- 스터디룸 예약전에 시간 확인 -->
+	<select id="selectIsTime" resultMap="studyRoomRent"><!--String으로 받아지는데 왜 객체로 못받 -->
+		SELECT NVL(TO_CHAR(RENT_TIME, '-HH24Mi'), '') AS RENT_DATE
+				, NVL(ROOM_RENT_MEMBER, '') AS ROOM_RENT_MEMBER
+				, TO_CHAR(RENT_TIME, 'YYYY-MM-DD') AS FULL_RENT_DATE
+		FROM STUDY_ROOM_RENT_INFO
+		WHERE RENT_TIME = #{rentDate} AND STUDY_ROOM_CODE = #{studyRoomCode}
+	</select>
+	
+	   <!-- 해당날짜에 그 사람이 4번이상인지 확인 -->
+	   <select id="countReserveOfMemberDate" resultType="int">
+		   SELECT COUNT(RENT_TIME) 
+		   FROM STUDY_ROOM_RENT_INFO 
+		   WHERE RENT_DATE = #{fullRentDate} AND MEMBER_CODE = #{memberCode}
+	   </select>
+	   
+	   <!-- 스터디룸 예약넣기 -->
+	   <insert id="insertRentDate">
+	      INSERT INTO STUDY_ROOM_RENT_INFO
+	         VALUES(
+	            #{memberCode}
+	            , 'Y'
+	            , TO_TIMESTAMP(#{rentDate}, 'YYYY-MM-DD-HH24Mi')
+	            , TO_DATE(#{fullRentDate}, 'YYYY-MM-DD')
+	            , #{rentStu}
+	            , #{roomRentMember}
+	            , #{studyRoomCode}
+	               )
+	   </insert>
+
+	<!-- 강연 정보 -->
+	<select id="selectLectureList" resultMap="lecture">
+		SELECT LECTURE_CODE
+	        , LECTURE_NAME
+	        , LECTURE_DATE
+	        , LECTURE_TIME
+	        , LECTURER
+	        , LECTURE_STATE
+	        , LECTURE_PLACE
+	        , FACILITY_CODE
+	        , STUDY_ROOM_NAME
+		FROM LECTURE_INFO L, STUDY_ROOM_INFO S
+		WHERE L.LECTURE_PLACE = S.STUDY_ROOM_CODE
+		<if test="searchName != null and !searchName.equals('')">
+			AND LECTURE_NAME LIKE '%' || #{searchName} || '%'
+		</if>
+		<if test="startDate != null and !startDate.equals('') and endDate != null and !endDate.equals('')">
+			AND	LECTURE_DATE BETWEEN #{startDate} AND #{endDate}
+		</if>
+		<if test="lectureState != 0 and !lectureState.equals('0')">
+			AND LECTURE_STATE = #{lectureState}
+		</if>
+		ORDER BY LECTURE_DATE DESC
+		</select>
+
+	<!-- 페이징 처리 -->
+	<select id="countBoard" resultType="int">
+		SELECT COUNT(*) FROM LECTURE_INFO
+	</select>
+	
+	<select id="selectLectureInfo" resultMap="lecture">
+			SELECT LECTURE_CODE
+		        , LECTURE_NAME
+		        , LECTURE_DATE
+		        , LECTURE_TIME
+		        , LECTURER
+		        , LECTURE_STATE
+		        , LECTURE_PLACE
+		        , FACILITY_CODE
+		        , SEQ
+		        , RN
+		FROM (
+			SELECT ROWNUM RN, LECTURE_CODE
+				        , LECTURE_NAME
+				        , LECTURE_DATE
+				        , LECTURE_TIME
+				        , LECTURER
+				        , LECTURE_STATE
+				        , LECTURE_PLACE
+				        , FACILITY_CODE 
+				        , SEQ
+				FROM (
+						SELECT LECTURE_CODE
+					        , LECTURE_NAME
+					        , LECTURE_DATE
+					        , LECTURE_TIME
+					        , LECTURER
+					        , LECTURE_STATE
+					        , LECTURE_PLACE
+					        , FACILITY_CODE
+					        , SEQ
+						FROM LECTURE_INFO 
+						ORDER BY LECTURE_STATE, LECTURE_DATE DESC
+						) A
+				)
+		WHERE RN BETWEEN #{start} AND #{end}
+		ORDER BY RN
+	</select>
+	
+	<select id="selectDetailLecture" resultMap="lecture">
+		SELECT LECTURE_CODE
+		        , LECTURE_NAME
+		        , TO_DATE(TO_CHAR(LECTURE_DATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS LECTURE_DATE
+		        , LECTURE_TIME
+		        , LECTURER
+		        , LECTURE_STATE
+		        , LECTURE_PLACE
+		        , FACILITY_CODE
+		FROM LECTURE_INFO
+		WHERE LECTURE_CODE = #{lectureCode}
+	</select>
+	
+	<delete id="cancelReserve">
+		DELETE PARKING_INFO
+		WHERE PARKING_MEMBER = #{parkingMember}
+		AND PARKING_DATE = #{parkingDate}
+	</delete>
+
+</mapper>

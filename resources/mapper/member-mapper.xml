@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 모든 SQL문을 mapper태그 안에 작성 -->
+<mapper namespace="memberMapper">
+	<!-- resultMap 작성 -->
+	<resultMap type="Audi_Lib.member.vo.MemberVO" id="member">
+		<id column="MEMBER_CODE" property="memberCode"/>
+		<result column="MEMBER_EMAIL" property="memberEmail"/>
+		<result column="MEMBER_PASSWORD" property="memberPassword"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="MEMBER_ADDR" property="memberAddr"/>
+		<result column="MEMBER_ADDR_DETAIL" property="memberAddrDetail"/>
+		<result column="MEMBER_TEL" property="memberTel"/>
+		<result column="MEMBER_POINT" property="memberPoint"/>
+		<result column="MEMBER_RENT_COUNT" property="memberRentCount"/>
+		<result column="MEMBER_LEVEL" property="memberLevel"/>
+		<result column="MEMBER_CAR_NUM" property="memberCarNum"/>
+		<result column="REG_DATE" property="regDate"/>
+		<result column="IS_ADMIN" property="isAdmin"/>
+		<result column="IS_KAKAO" property="isKakao"/>
+		<result column="FAIL_CNT" property="failCnt"/>
+	</resultMap>
+
+	<resultMap type="Audi_Lib.member.vo.MemberLevelVO" id="level">
+		<id column="MEMBER_LEVEL"					property="memberLevel"/>
+		<result column="AVAILABLE_RENT_DATE"		property="availableRentDate"/>
+		<result column="LEVEL_NAME"					property="levelName"/>
+		<result column="AVAILABLE_RENT_BOOK_NUMBER"	property="availableRentBookNumber"/>
+	</resultMap>
+	<!-- 쿼리 작성 -->
+
+	<insert id="insertMember">
+		INSERT INTO LIB_MEMBER (
+			MEMBER_CODE
+			, MEMBER_EMAIL
+			, MEMBER_PASSWORD
+			, MEMBER_NAME
+			, MEMBER_ADDR
+			, MEMBER_ADDR_DETAIL
+			, MEMBER_TEL
+			, MEMBER_CAR_NUM
+			<if test="isKakao != null and !isKakao.equals('')">
+			, IS_KAKAO
+			</if>
+		) VALUES (
+			(SELECT 'MEMBER_'||NVL(MAX(TO_NUMBER(SUBSTR(MEMBER_CODE, 8))) + 1, 1) FROM LIB_MEMBER)
+			, #{memberEmail}
+			, #{memberPassword}
+			, #{memberName}
+			, #{memberAddr}
+			, #{memberAddrDetail}
+			, #{memberTel}
+			, #{memberCarNum}
+			<if test="isKakao != null and !isKakao.equals('')">
+			, #{isKakao}
+			</if>
+		)
+	</insert>
+	
+	<select id="login" resultMap="member">
+		SELECT MEMBER_CODE
+			, MEMBER_EMAIL
+			, MEMBER_NAME
+			, IS_ADMIN
+			, MEMBER_PASSWORD
+		FROM LIB_MEMBER
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+	<select id="kakaoLogin" resultMap="member">
+		SELECT MEMBER_CODE
+			, MEMBER_EMAIL
+			, MEMBER_NAME
+			, IS_ADMIN
+			, MEMBER_PASSWORD
+		FROM LIB_MEMBER
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+	<select id="selectMemberInfo" resultMap="member">
+		SELECT MEMBER_CODE
+			, MEMBER_EMAIL
+			, MEMBER_PASSWORD
+			, MEMBER_NAME
+			, MEMBER_ADDR
+			, MEMBER_ADDR_DETAIL
+			, MEMBER_TEL
+			, MEMBER_CAR_NUM
+		FROM LIB_MEMBER
+		WHERE MEMBER_CODE = #{memberCode}
+	</select>
+	
+	<update id="updateMemberInfo">
+		UPDATE LIB_MEMBER
+		SET
+			MEMBER_EMAIL = #{memberEmail}
+		<if test="memberPassword != null and !memberPassword.equals('')">
+			, MEMBER_PASSWORD = #{memberPassword}
+		</if>
+		<if test="memberName != null and !memberName.equals('')">
+			, MEMBER_NAME =#{memberName}
+		</if>
+		<if test="memberAddr != null and !memberAddr.equals('')">
+			, MEMBER_ADDR =#{memberAddr}
+		</if>
+		<if test="memberAddrDetail != null and !memberAddrDetail.equals('')">
+			, MEMBER_ADDR_DETAIL = #{memberAddrDetail}
+		</if>
+		<if test="memberTel != null and !memberTel.equals('')">
+			, MEMBER_TEL = #{memberTel}
+		</if>
+		<if test="memberCarNum != null and memberCarNum != 0">
+			, MEMBER_CAR_NUM = #{memberCarNum}
+		</if>
+		WHERE MEMBER_CODE = #{memberCode}
+	</update>
+	
+	<delete id="deleteMemberInfo">
+		DELETE LIB_MEMBER
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</delete>
+	
+	<select id="selectMemberPoint" resultMap="member">
+		SELECT MEMBER_CODE
+			, MEMBER_POINT
+		FROM LIB_MEMBER
+		WHERE MEMBER_CODE = #{memberCode}
+	</select>
+	
+	<select id="selectBasicMemberInfo" resultMap="member">
+		SELECT MEMBER_CODE
+			, MEMBER_EMAIL
+			, MEMBER_NAME
+			, MEMBER_ADDR
+			, MEMBER_ADDR_DETAIL
+			, MEMBER_TEL
+			, MEMBER_POINT
+			, MEMBER_LEVEL
+			, MEMBER_CAR_NUM
+		FROM LIB_MEMBER
+		WHERE MEMBER_CODE = #{memberCode}
+	</select>
+	
+	<select id="findMemberId" resultMap="member">
+		SELECT MEMBER_EMAIL
+		FROM LIB_MEMBER
+		WHERE MEMBER_NAME = #{memberName}
+		AND MEMBER_TEL = #{memberTel}
+	</select>
+	
+	<select id="findMemberPw" resultMap="member">
+		SELECT MEMBER_PASSWORD
+		FROM LIB_MEMBER
+		WHERE MEMBER_NAME =	#{memberName}
+		AND MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+	<update id="memberPasswordUpdate">
+		UPDATE LIB_MEMBER
+		SET MEMBER_PASSWORD = #{memberPassword}
+		WHERE MEMBER_NAME = #{memberName}
+		AND MEMBER_EMAIL = #{memberEmail}
+	</update>
+	
+	<update id="sendNewPassword">
+		UPDATE LIB_MEMBER
+		SET MEMBER_PASSWORD = #{memberPassword}
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</update>
+	
+	<select id="selectIdForKakaoLogin" resultType="String">
+		SELECT MEMBER_EMAIL
+		FROM LIB_MEMBER
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+	<select id="myStudyRoomReserveList" resultMap="facilityMapper.studyRoomView">
+		SELECT STUDY_ROOM_CODE
+			    , STUDY_ROOM_NAME
+			    , MEMBER_CODE
+			    , IS_RENT
+			    , TO_CHAR(RENT_TIME, 'HH24:MI') AS RENT_TIME
+			    , TO_CHAR(RENT_DATE, 'YYYY"년 "MM"월 "DD"일"')||' ('||TO_CHAR(RENT_DATE, 'dy')||')' AS RENT_DATE
+			    , RENT_STU
+	            , MEMBER_NAME
+			FROM STUDY_ROOM_VIEW
+			WHERE MEMBER_CODE = #{memberCode}
+			AND RENT_TIME &gt;= SYSDATE
+	</select>
+	
+	<select id="myParkingReserveList"  resultMap="facilityMapper.parkingView">
+		SELECT PARKING_CODE
+		    , PARKING_PRICE
+		    , IS_AFTERNOON
+		    , IS_PARKING
+		    , FACILITY_CODE
+		    , PARKING_DATE
+		    , PARKING_LOC
+		    , MEMBER_NAME
+		    , MEMBER_CODE
+		FROM PARKING_VIEW
+		WHERE MEMBER_CODE = #{memberCode}
+		AND PARKING_DATE &gt;= SYSDATE
+		ORDER BY PARKING_DATE
+	</select>
+	
+	<select id="selectEmailForLoginFail" resultMap="member">
+		SELECT MEMBER_EMAIL
+		FROM LIB_MEMBER
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+	<update id="loginFailCnt">
+		UPDATE LIB_MEMBER
+		SET FAIL_CNT = FAIL_CNT + 1
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</update>
+	
+	<select id="selectFailCnt" resultMap="member">
+		SELECT FAIL_CNT
+		FROM LIB_MEMBER
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+	<update id="loginFailClear">
+		UPDATE LIB_MEMBER
+		SET FAIL_CNT = 0
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</update>
+	
+	<select id="emailOverlap" resultType="int">
+		SELECT COUNT(MEMBER_EMAIL)
+		FROM LIB_MEMBER
+		WHERE MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+	
+	
+	<tiles-definitions>
+		<!-- 일반회원의 페이지 설정 -->
+		<definition name="baseLayout" template="/WEB-INF/views/template/template.jsp">
+			<put-attribute name="title" value="Audi 도서관"/>
+			<put-attribute name="topMenu" value="/WEB-INF/views/template/top_menu.jsp"/>
+			<put-attribute name="main" value=""/>
+		</definition>
+		
+		<!-- 마이 페이지 -->
+		<definition name="myPageLayout" template="/WEB-INF/views/template/my_page_template.jsp">
+			<put-attribute name="title" value="마이 페이지 도서관"/>
+			<put-attribute name="topMenu" value="/WEB-INF/views/template/top_menu.jsp"/>
+			<put-attribute name="side" value="/WEB-INF/views/template/my_page_side.jsp"/>
+			<put-attribute name="main" value=""/>
+		</definition>
+
+
+		<!-- 관리자의 페이지 설정 -->
+		<definition name="adminLayout" template="/WEB-INF/views/template/admin_template.jsp">
+			<put-attribute name="title" value="Audi 도서관"/>
+			<put-attribute name="topMenu" value="/WEB-INF/views/template/top_menu.jsp"/>
+			<put-attribute name="side" value="/WEB-INF/views/template/side.jsp"/>
+			<put-attribute name="main" value=""/>
+		</definition>
+	
+		<!-- 관리자용 -->
+		<definition name="admin/*" extends="adminLayout">
+		<!-- baseLayout을 상속한다 -->
+			<put-attribute name="main" value="/WEB-INF/views/admin/{1}.jsp"/>
+		</definition>
+
+		<!-- 마이 페이지 -->
+		<definition name="myPage/*" extends="myPageLayout">
+			<put-attribute name="main" value="/WEB-INF/views/myPage/{1}.jsp"></put-attribute>
+		</definition>
+		
+		<!-- 일반회원용 -->
+		<definition name="*/*" extends="baseLayout">
+			<!-- baseLayout을 상속한다. -->
+			<put-attribute name="main" value="/WEB-INF/views/{1}/{2}.jsp"></put-attribute>
+		</definition>
+	
+	</tiles-definitions>

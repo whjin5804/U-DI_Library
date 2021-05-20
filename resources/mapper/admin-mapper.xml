@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 모든 SQL문을 mapper태그 안에 작성 -->
+<mapper namespace="adminMapper">
+	<resultMap type="Audi_Lib.member.vo.MemberVO" id="admin">
+		<id column="MEMBER_CODE"		 		property="memberCode"/>
+		<result column="MEMBER_EMAIL" 			property="memberEmail"/>
+		<result column="MEMBER_PASSWORD" 		property="memberPassword"/>
+		<result column="MEMBER_NAME" 			property="memberName"/>
+		<result column="MEMBER_ADDR" 			property="memberAddr"/>
+		<result column="MEMBER_ADDR_DETAIL" 	property="memberAddrDetail"/>
+		<result column="MEMBER_TEL" 			property="memberTel"/>
+		<result column="MEMBER_POINT" 			property="memberPoint"/>
+		<result column="MEMBER_RENT_COUNT" 		property="memberRentCount"/>
+		<result column="MEMBER_LEVEL" 			property="memberLevel"/>
+		<result column="MEMBER_CAR_NUM" 		property="memberCarNum"/>
+		<result column="REG_DATE" 				property="regDate"/>
+		<result column="IS_ADMIN" 				property="isAdmin"/>
+		<result column="IS_KAKAO" 				property="isKakao"/>
+		<result column="LEVEL_NAME"				property="levelName"/>
+	</resultMap>
+
+	<!-- 회원목록조회 -->
+	<select id="selectMemberList" resultMap="admin">
+		SELECT MEMBER_CODE
+	        , MEMBER_EMAIL
+	        , MEMBER_NAME
+	        , MEMBER_ADDR
+	        , NVL(MEMBER_ADDR_DETAIL, '') AS MEMBER_ADDR_DETAIL
+	        , MEMBER_TEL
+	        , MEMBER_POINT
+	        , MEMBER_RENT_COUNT
+	        , NVL(MEMBER_CAR_NUM, '') AS MEMBER_CAR_NUM
+	        , REG_DATE
+	        , IS_KAKAO
+	        , IS_ADMIN
+	        , LEVEL_NAME
+	        , M.MEMBER_LEVEL
+		FROM LIB_MEMBER M, LIB_MEMBER_LEVEL L
+		WHERE M.MEMBER_LEVEL = L.MEMBER_LEVEL
+		<if test="memberName != null and !memberName.equals('')">
+		AND (UPPER(${memberName}) LIKE '%'||UPPER(#{memberName}||'%'))
+		ORDER BY MEMBER_NAME
+		</if>
+		<if test="memberName == null or memberName.equals('')">
+		ORDER BY TO_NUMBER(SUBSTR(MEMBER_CODE, 8))
+		</if>
+	</select>
+	
+	
+	<!-- 회원 정보 수정 -->
+	<update id="updateMemberInfoOfAdmin">
+		UPDATE LIB_MEMBER
+		SET
+		MEMBER_NAME = #{memberName}
+		, MEMBER_EMAIL =  #{memberEmail}
+		, MEMBER_ADDR = #{memberAddr}
+		, MEMBER_ADDR_DETAIL = #{memberAddrDetail}
+		, MEMBER_CAR_NUM = #{memberCarNum}
+		, MEMBER_TEL = #{memberTel}
+		WHERE MEMBER_CODE = #{memberCode}
+	</update>
+	
+	<update id="updateMemberToAdmin">
+		UPDATE LIB_MEMBER
+		SET IS_ADMIN = 'Y'
+		WHERE MEMBER_CODE = #{memberCode}
+	</update>
+	
+	<!-- 회원 삭제 -->
+	<delete id="deleteMemberInfoOfAdmin">
+		DELETE FROM LIB_MEMBER WHERE MEMBER_CODE = #{memberCode}
+	</delete>
+	
+	<!-- 도서목록조회 -->
+	<select id="selectBookListForAdmin" resultMap="bookMapper.book">
+		SELECT BOOK_CODE
+		    , CATEGORY_CODE
+		    , BOOK_TITLE
+		    , PUBLISHER
+		    , AUTHOR
+		    , BOOK_PUBLICATION_DATE
+		    , ACQUISITION_DATE
+		FROM BOOK_INFO
+		WHERE 1=1
+		<if test="keyword != null and !keyword.equals('')">
+		AND (UPPER(${condition}) LIKE '%'||UPPER(#{keyword}||'%'))
+		ORDER BY KEYWORD
+		</if>
+		<if test="keyword == null or keyword.equals('')">
+		ORDER BY TO_NUMBER(SUBSTR(BOOK_CODE, 6))
+		</if>
+	</select>
+	
+	<!-- 도서 등록 -->
+	<insert id="insertBookForAdmin">
+		INSERT INTO BOOK_INFO (
+			BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, BOOK_PREVIEW
+			, BOOK_CLASS
+			<if test="bookImageName != null and !bookImageName.equals('')">
+			, BOOK_IMAGE_NAME
+			</if>
+		) VALUES (
+			(SELECT 'BOOK_'||NVL(MAX(TO_NUMBER(SUBSTR(BOOK_CODE, 6))) + 1 , 1) FROM BOOK_INFO)
+			, #{bookTitle}
+			, #{publisher}
+			, #{author}
+			, #{bookPublicationDate}
+			, #{bookPreview}
+			, #{bookClass}
+			<if test="bookImageName != null and !bookImageName.equals('')">
+			, #{bookImageName}
+			</if>
+		)
+	</insert>
+	
+	<!-- 도서 삭제 -->
+	<delete id="deleteBookInfo">
+		DELETE FROM BOOK_INFO WHERE BOOK_CODE = #{bookCode}
+	</delete>
+	
+	<!-- 도서 수정 -->
+	<update id="updateBookInfo">
+		UPDATE BOOK_INFO_VIEW
+			SET BOOK_CLASS = #{bookClass}
+			, BOOK_TITLE = #{bookTitle}
+			, PUBLISHER = #{publisher}
+			, AUTHOR = #{author}
+			, BOOK_PUBLICATION_DATE = #{bookPublicationDate}
+			WHERE BOOK_CODE = #{bookCode}
+	</update>
+	
+	<!-- 페이징 처리 -->
+	<!-- 게시물 총 갯수 -->
+	<select id="countBoardForAdmin" resultType="int">
+		SELECT COUNT(*) FROM BOOK_INFO
+		WHERE 1=1
+		<if test="keyword != null and !keyword.equals('')">
+		AND (UPPER(${condition}) LIKE '%'||UPPER(#{keyword})||'%')
+		</if>
+	</select>
+	
+	<!-- 행사/강연 총 갯수-->
+	<select id="countLectureForAdmin" resultType="int">
+		SELECT COUNT(*) FROM LECTURE_INFO
+		WHERE 1=1
+		<if test="keyword != null and !keyword.equals('')">
+		AND (UPPER(${condition}) LIKE '%'||UPPER(#{keyword})||'%')
+		</if>
+	</select>
+	
+	<!-- 페이징 처리 후 도서 목록 조회 -->
+	<select id="selectBookForAdmin" resultMap="bookMapper.bookView">
+		SELECT  BOOK_CODE
+			, BOOK_CLASS
+		    , BOOK_CLASS_NAME
+		    , BOOK_TITLE
+		    , PUBLISHER
+		    , AUTHOR
+		    , BOOK_PUBLICATION_DATE
+		    , ACQUISITION_DATE 
+		    FROM
+				(SELECT ROWNUM RN
+				, BOOK_CODE
+				, BOOK_CLASS
+			    , BOOK_CLASS_NAME
+			    , BOOK_TITLE
+			    , PUBLISHER
+			    , AUTHOR
+			    , BOOK_PUBLICATION_DATE
+			    , ACQUISITION_DATE 
+			    FROM
+					(SELECT BOOK_CODE
+					, BOOK_CLASS
+				    , BOOK_CLASS_NAME
+				    , BOOK_TITLE
+				    , PUBLISHER
+				    , AUTHOR
+				    , BOOK_PUBLICATION_DATE
+				    , ACQUISITION_DATE
+					FROM BOOK_INFO_VIEW
+					WHERE 1=1
+					<if test="keyword != null and !keyword.equals('')">
+					AND (UPPER(${condition}) LIKE '%'||UPPER(#{keyword})||'%')
+					</if>
+					ORDER BY TO_NUMBER(SUBSTR(BOOK_CODE, 6)) DESC
+					<!--ORDER BY SEQ DESC-->
+					) A
+				)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!-- 멤버 총 인원수 -->
+	<select id="countMemberForAdmin" resultType="int">
+		SELECT COUNT(*) FROM LIB_MEMBER
+		WHERE 1=1
+		<if test="keyword != null and !keyword.equals('')">
+		AND (UPPER(${condition}) LIKE '%'||UPPER(#{keyword})||'%')
+		</if>
+	</select>
+	
+	<!-- 페이징 처리 후 멤버 조회 -->
+	<select id="selectMemberForAdmin" resultMap="admin">
+		SELECT MEMBER_CODE
+	        , MEMBER_EMAIL
+	        , MEMBER_NAME
+	        , MEMBER_ADDR
+	        , MEMBER_ADDR_DETAIL
+	        , MEMBER_TEL
+	        , MEMBER_POINT
+	        , MEMBER_RENT_COUNT
+	        , MEMBER_CAR_NUM
+	        , REG_DATE
+	        , IS_KAKAO
+	        , IS_ADMIN
+	        , LEVEL_NAME
+	        , MEMBER_LEVEL
+			FROM 
+				(SELECT ROWNUM RN
+				, MEMBER_CODE
+		        , MEMBER_EMAIL
+		        , MEMBER_NAME
+		        , MEMBER_ADDR
+		        , MEMBER_ADDR_DETAIL
+		        , MEMBER_TEL
+		        , MEMBER_POINT
+		        , MEMBER_RENT_COUNT
+		        , MEMBER_CAR_NUM
+		        , REG_DATE
+		        , IS_KAKAO
+		        , IS_ADMIN
+		        , LEVEL_NAME
+		        , MEMBER_LEVEL
+	       		FROM 
+		       		(SELECT MEMBER_CODE
+			        , MEMBER_EMAIL
+			        , MEMBER_NAME
+			        , MEMBER_ADDR
+			        , NVL(MEMBER_ADDR_DETAIL, '') AS MEMBER_ADDR_DETAIL
+			        , MEMBER_TEL
+			        , MEMBER_POINT
+			        , MEMBER_RENT_COUNT
+			        , NVL(MEMBER_CAR_NUM, '') AS MEMBER_CAR_NUM
+			        , REG_DATE
+			        , IS_KAKAO
+			        , IS_ADMIN
+			        , LEVEL_NAME
+			        , M.MEMBER_LEVEL
+			        FROM LIB_MEMBER M, LIB_MEMBER_LEVEL L
+					WHERE M.MEMBER_LEVEL = L.MEMBER_LEVEL
+					<if test="keyword != null and !keyword.equals('')">
+					AND (UPPER(${condition}) LIKE '%'||UPPER(#{keyword})||'%')
+					</if>
+					ORDER BY TO_NUMBER(SUBSTR(MEMBER_CODE, 8))
+					)A
+				)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!-- 스터디룸 예약 현황 조회 -->
+	<select id="selectStudyRoomInfoList" resultMap="facilityMapper.studyRoomView">
+		SELECT STUDY_ROOM_CODE
+		    , STUDY_ROOM_NAME
+		    , MEMBER_CODE
+		    , IS_RENT
+		    , TO_CHAR(RENT_TIME, 'HH24:MI') AS RENT_TIME
+		    <!-- , TO_CHAR(RENT_TIME, 'HH24:MI')||' ~ '||TO_CHAR(RENT_TIME + 1/24, 'HH24:MI') AS RENT_TIME -->
+		    , TO_CHAR(RENT_DATE, 'YYYY"년 "MM"월 "DD"일"')||' ('||TO_CHAR(RENT_DATE, 'dy')||')' AS RENT_DATE
+		    , RENT_STU
+            , MEMBER_NAME
+		FROM STUDY_ROOM_VIEW
+		WHERE 1=1
+		<if test="studyRoomType != null and !studyRoomType.equals('') and studyRoomType.equals('discussionRoom')">
+			AND STUDY_ROOM_NAME LIKE '%'||'토론'||'%'
+		</if>
+		<if test="studyRoomType != null and !studyRoomType.equals('') and studyRoomType.equals('mediaRoom')">
+			AND STUDY_ROOM_NAME LIKE '%'||'미디어'||'%'
+		</if>
+		<if test="studyRoomType != null and !studyRoomType.equals('') and studyRoomType.equals('presentationRoom')">
+			AND STUDY_ROOM_NAME LIKE '%'||'발표'||'%'
+		</if>
+		ORDER BY RENT_DATE, STUDY_ROOM_NAME, RENT_TIME
+	</select>
+	
+	<!-- 스터디룸 예약 취소 -->
+	<delete id="deleteRoomReservation">
+		DELETE FROM STUDY_ROOM_VIEW
+		WHERE MEMBER_CODE = #{memberCode}
+		AND TO_CHAR(RENT_TIME, 'HH24:MI') = #{rentTime}
+	</delete>
+	
+	<!-- 주차장 예약 현황 조회 -->
+	<select id="selectParkingInfoList" resultMap="facilityMapper.parkingView">
+		SELECT PARKING_CODE
+		    , PARKING_PRICE
+		    , IS_AFTERNOON
+		    , IS_PARKING
+		    , FACILITY_CODE
+		    , PARKING_DATE
+		    , PARKING_LOC
+		    , MEMBER_NAME
+		    , MEMBER_CODE
+		FROM PARKING_VIEW
+		WHERE 1=1
+		<if test="parkingDate != null and !parkingDate.equals('')">
+		AND PARKING_DATE = TO_DATE(#{parkingDate})
+		</if>
+	</select>
+	
+	<!-- 행사/강연 등록 -->
+	<insert id="insertLecture">
+		INSERT INTO LECTURE_INFO(
+                LECTURE_CODE
+                , LECTURE_NAME
+                , LECTURE_DATE
+                , LECTURE_TIME
+                , LECTURER
+                , LECTURE_PLACE
+                , FACILITY_CODE <!-- FACILITY_4 -->
+                , SEQ
+                ) VALUES(
+                (SELECT 'LECTURE_' || NVL(MAX(TO_NUMBER(SUBSTR(LECTURE_CODE, 9))) + 1, 1) FROM LECTURE_INFO)
+                , #{lectureName}
+                , #{lectureDate}
+                , #{lectureTime}
+                , #{lecturer}
+                , #{lecturePlace}
+                , 'FACILITY_4'
+                , SEQ.NEXTVAL
+                )
+	</insert>
+	
+	<!-- 페이징 처리 후 행사 일정 조회 -->
+	<select id="selectLectureInfoForAdmin" resultMap="facilityMapper.lecture">
+			SELECT LECTURE_CODE
+		        , LECTURE_NAME
+		        , LECTURE_DATE
+		        , LECTURE_TIME
+		        , LECTURER
+		        , LECTURE_STATE
+		        , LECTURE_PLACE
+		        , FACILITY_CODE
+		        , STUDY_ROOM_NAME
+		        , SEQ
+		        , RN
+		FROM (
+			SELECT ROWNUM RN, LECTURE_CODE
+				        , LECTURE_NAME
+				        , LECTURE_DATE
+				        , LECTURE_TIME
+				        , LECTURER
+				        , LECTURE_STATE
+				        , LECTURE_PLACE
+				        , FACILITY_CODE 
+	        	        , STUDY_ROOM_NAME
+				        , SEQ
+				FROM (
+						SELECT LECTURE_CODE
+					        , LECTURE_NAME
+					        , LECTURE_DATE
+					        , LECTURE_TIME
+					        , LECTURER
+					        , LECTURE_STATE
+					        , LECTURE_PLACE
+					        , FACILITY_CODE
+		        	        , STUDY_ROOM_NAME
+					        , SEQ
+						FROM LECTURE_INFO L, STUDY_ROOM_INFO S
+						WHERE L.LECTURE_PLACE = S.STUDY_ROOM_CODE
+						<if test="keyword != null and !keyword.equals('')">
+						AND (UPPER(${condition}) LIKE '%'||UPPER(#{keyword})||'%')
+						</if>
+						ORDER BY LECTURE_STATE, LECTURE_DATE DESC
+						) A
+					)
+			WHERE RN BETWEEN #{start} AND #{end}
+			ORDER BY RN
+	</select>
+	
+	<!-- 행사 정보 수정 -->
+	<update id="updateLectureInfoOfAdmin">
+		UPDATE LECTURE_INFO
+		SET
+		LECTURE_NAME = #{lectureName}
+		, LECTURE_DATE =  #{lectureDate1}
+		, LECTURE_TIME = #{lectureTime}
+		, LECTURER = #{lecturer}
+		, LECTURE_STATE = #{lectureState}
+		, LECTURE_PLACE = #{lecturePlace}
+		WHERE LECTURE_CODE = #{lectureCode}
+	</update>
+	
+	<!-- 행사 정보 삭제 -->
+	<delete id="deleteLectureInfoOfAdmin">
+		DELETE FROM LECTURE_INFO WHERE LECTURE_CODE = #{lectureCode}
+	</delete>
+</mapper>
+

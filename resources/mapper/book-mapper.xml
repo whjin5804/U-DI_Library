@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 모든 SQL문을 mapper태그 안에 작성 -->
+<mapper namespace="bookMapper">
+	<!-- resultMap 작성 -->
+	<resultMap type="Audi_Lib.book.vo.BookVO" id="book">
+		<id column="BOOK_CODE"					property="bookCode"/>
+		<result column="CATEGORY_CODE"			property="categoryCode"/>
+		<result column="BOOK_TITLE"				property="bookTitle"/>
+		<result column="PUBLISHER"				property="publisher"/>
+		<result column="AUTHOR"					property="author"/>
+		<result column="BOOK_PUBLICATION_DATE"	property="bookPublicationDate"/>
+		<result column="ACQUISITION_DATE"		property="acquisitionDate"/>
+		<result column="BOOK_PREVIEW"			property="bookPreview"/>
+		<result column="BOOK_IMAGE_NAME"		property="bookImageName"/>
+		<result column="BOOK_CLASS"				property="bookClass"/>
+		<result column="CONDITION"				property="condition"/>
+		<result column="KEYWORD"				property="keyword"/>
+		<result column="IS_AVAILABLE"			property="isAvailable"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.book.vo.BookClassVO" id="bookClass">
+		<id column="BOOK_CLASS"					property="bookClass"/>
+		<result column="BOOK_CLASS_NAME"		property="bookClassName"/>
+		<result column="BOOK_CLASS_RENT_COUNT"	property="bookClassRentCount"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.book.vo.BookViewVO" id="bookView">
+		<id column="BOOK_CODE"					property="bookCode"/>
+		<result column="BOOK_TITLE"				property="bookTitle"/>
+		<result column="PUBLISHER"				property="publisher"/>
+		<result column="AUTHOR"					property="author"/>
+		<result column="BOOK_PUBLICATION_DATE"	property="bookPublicationDate"/>
+		<result column="ACQUISITION_DATE"		property="acquisitionDate"/>
+		<result column="BOOK_PREVIEW"			property="bookPreview"/>
+		<result column="BOOK_IMAGE_NAME"		property="bookImageName"/>
+		<result column="BOOK_CLASS"				property="bookClass"/>
+		<result column="BOOK_CLASS_NAME"		property="bookClassName"/>
+		<result column="BOOK_CLASS_RENT_COUNT"	property="bookClassRentCount"/>
+		<result column="IS_AVAILABLE"			property="isAvailable"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.book.vo.MonthlyBookRankVO" id="mRank">
+		<result column="RANK_MONTH"			property="rankMonth"/>
+		<result column="RANK_1"				property="rank1"/>
+		<result column="RANK_2"				property="rank2"/>
+		<result column="RANK_3"				property="rank3"/>
+		<result column="RANK_4"				property="rank4"/>
+		<result column="RANK_5"				property="rank5"/>
+		<result column="RANK_6"				property="rank6"/>
+		<result column="RANK_7"				property="rank7"/>
+		<result column="RANK_8"				property="rank8"/>
+		<result column="RANK_9"				property="rank9"/>
+	</resultMap>
+	
+	<insert id="insertBook">
+		INSERT INTO BOOK_INFO (
+			BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, BOOK_PREVIEW
+			, BOOK_CLASS
+			<if test="bookImageName != null and !bookImageName.equals('')">
+			, BOOK_IMAGE_NAME
+			</if>
+		) VALUES (
+			(SELECT 'BOOK_'||NVL(MAX(TO_NUMBER(SUBSTR(BOOK_CODE, 6))) + 1 , 1) FROM BOOK_INFO)
+			, #{bookTitle}
+			, #{publisher}
+			, #{author}
+			, #{bookPublicationDate}
+			, #{bookPreview}
+			, #{bookClass}
+			<if test="bookImageName != null and !bookImageName.equals('')">
+			, #{bookImageName}
+			</if>
+		)
+	</insert>
+	
+	<select id="selectBookClassAll" resultMap="bookClass">
+		SELECT BOOK_CLASS
+			, BOOK_CLASS_NAME
+			, BOOK_CLASS_RENT_COUNT
+		FROM BOOK_CLASS
+		ORDER BY BOOK_CLASS
+	</select>
+	
+	<select id="selectBookListToTime" resultMap="bookView">
+		SELECT BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, ACQUISITION_DATE
+			, BOOK_CLASS
+			, BOOK_CLASS_NAME
+			, IS_AVAILABLE
+			, BOOK_IMAGE_NAME
+		FROM(
+			SELECT BOOK_CODE
+				, BOOK_TITLE
+				, PUBLISHER
+				, AUTHOR
+				, BOOK_PUBLICATION_DATE
+				, ACQUISITION_DATE
+				, BOOK_CLASS
+				, BOOK_CLASS_NAME
+				, IS_AVAILABLE
+				, BOOK_IMAGE_NAME
+			FROM BOOK_INFO_VIEW
+			ORDER BY ACQUISITION_DATE DESC
+		)
+		WHERE ROWNUM &lt; 11
+	</select>
+	
+	<select id="selectBookList" resultMap="bookView">
+		SELECT BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, ACQUISITION_DATE
+			, BOOK_CLASS
+			, BOOK_CLASS_NAME
+			, IS_AVAILABLE
+			, BOOK_IMAGE_NAME
+		FROM 
+			(SELECT BOOK_CODE
+				, BOOK_TITLE
+				, PUBLISHER
+				, AUTHOR
+				, BOOK_PUBLICATION_DATE
+				, ACQUISITION_DATE
+				, BOOK_CLASS
+				, BOOK_CLASS_NAME
+				, IS_AVAILABLE
+				, BOOK_IMAGE_NAME
+				, ROWNUM AS RN
+			FROM
+				(SELECT BOOK_CODE
+					, BOOK_TITLE
+					, PUBLISHER
+					, AUTHOR
+					, BOOK_PUBLICATION_DATE
+					, ACQUISITION_DATE
+					, BOOK_CLASS
+					, BOOK_CLASS_NAME
+					, IS_AVAILABLE
+					, BOOK_IMAGE_NAME
+				FROM BOOK_INFO_VIEW
+				WHERE 1=1
+				<if test="keyword != null and !keyword.equals('')">
+				AND	( UPPER(BOOK_TITLE) LIKE '%'||UPPER(#{keyword})||'%'
+					OR UPPER(PUBLISHER) LIKE '%'||UPPER(#{keyword})||'%'
+					OR UPPER(AUTHOR) LIKE '%'||UPPER(#{keyword})||'%')
+				</if>
+				<if test="publisher != null and !publisher.equals('')">
+				AND UPPER(PUBLISHER) = UPPER(#{publisher})
+				</if>
+				<if test="author != null and !author.equals('')">
+				AND UPPER(AUTHOR) = UPPER(#{author})
+				</if>
+				<if test="bookClass != null and bookClass != 10">
+				AND BOOK_CLASS = #{bookClass}
+				</if>
+				ORDER BY BOOK_TITLE, AUTHOR, PUBLISHER))
+		WHERE RN &gt;= #{start} AND RN &lt;= #{end}
+	</select>
+	
+	<select id="selectClassListToCount" resultMap="bookClass">
+		SELECT BOOK_CLASS
+		FROM BOOK_CLASS
+		ORDER BY BOOK_CLASS_RENT_COUNT DESC, BOOK_CLASS
+	</select>
+	
+	<select id="selectBookListToClass" resultMap="bookView">
+		SELECT BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, ACQUISITION_DATE
+			, BOOK_CLASS
+			, BOOK_CLASS_NAME
+			, IS_AVAILABLE
+			, BOOK_IMAGE_NAME
+		FROM (
+			    SELECT BOOK_CODE
+				, BOOK_TITLE
+				, PUBLISHER
+				, AUTHOR
+				, BOOK_PUBLICATION_DATE
+				, ACQUISITION_DATE
+				, BOOK_CLASS
+				, BOOK_CLASS_NAME
+				, IS_AVAILABLE
+				, BOOK_IMAGE_NAME
+			    FROM BOOK_INFO_VIEW
+			    WHERE BOOK_CLASS = #{bookClass}
+			    ORDER BY ACQUISITION_DATE DESC, BOOK_CODE DESC
+		    )
+		WHERE ROWNUM &lt; 6
+	</select>
+	
+	<!-- 페이징 처리를 위해 -->
+	<select id="countBookForPaging" resultType="int">
+		SELECT COUNT(BOOK_CODE)
+		FROM BOOK_INFO
+		WHERE 1=1
+		<if test="keyword != null and !keyword.equals('')">
+		AND	( UPPER(BOOK_TITLE) LIKE '%'||UPPER(#{keyword})||'%'
+			OR UPPER(PUBLISHER) LIKE '%'||UPPER(#{keyword})||'%'
+			OR UPPER(AUTHOR) LIKE '%'||UPPER(#{keyword})||'%')
+		</if>
+		<if test="publisher != null and !publisher.equals('')">
+		AND UPPER(PUBLISHER) = UPPER(#{publisher})
+		</if>
+		<if test="author != null and !author.equals('')">
+		AND UPPER(AUTHOR) = UPPER(#{author})
+		</if>
+		<if test="bookClass != null and bookClass != 10">
+		AND BOOK_CLASS = #{bookClass}
+		</if>
+	</select>
+	
+	<select id="selectBookDetail" resultMap="bookView">
+		SELECT BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, ACQUISITION_DATE
+			, BOOK_CLASS
+			, BOOK_CLASS_NAME
+			, BOOK_PREVIEW
+			, BOOK_IMAGE_NAME
+			, IS_AVAILABLE
+		FROM BOOK_INFO_VIEW
+		WHERE BOOK_CODE = #{bookCode}
+	</select>
+	
+	<select id="selectBookForInsertRank" resultType="String">
+		SELECT BOOK_CODE
+		FROM (
+			SELECT BOOK_CODE
+			FROM BOOK_RENT_COUNT
+			WHERE RENT_COUNT_IN_MONTH != 0
+			ORDER BY RENT_COUNT_IN_MONTH DESC, RENT_COUNT_TOTAL DESC
+			)
+		WHERE ROWNUM &lt; 10
+	</select>
+	
+	<insert id="insertBookRank">
+		{CALL INSERT_BOOK_RANK(
+				#{rank1}
+				, #{rank2}
+				, #{rank3}
+				, #{rank4}
+				, #{rank5}
+				, #{rank6}
+				, #{rank7}
+				, #{rank8}
+				, #{rank9}
+			)
+		}
+	</insert>
+	
+	<update id="updateMonthlyCountInit">
+		UPDATE BOOK_RENT_COUNT
+		SET
+			RENT_COUNT_IN_MONTH = 0
+	</update>
+	
+	<select id="selectRankedMonth" resultMap="mRank">
+		SELECT RANK_MONTH
+		FROM MONTHLY_BOOK_RANK
+		ORDER BY RANK_MONTH DESC
+	</select>
+	
+	<select id="selectRankedBookVOToMonth" resultMap="mRank">
+		SELECT RANK_MONTH
+			, RANK_1
+			, RANK_2
+			, RANK_3
+			, RANK_4
+			, RANK_5
+			, RANK_6
+			, RANK_7
+			, RANK_8
+			, RANK_9
+		FROM MONTHLY_BOOK_RANK
+		WHERE RANK_MONTH = #{rankMonth}
+	</select>
+	<select id="selectThisMonthRankedBookInfoList" resultMap="bookView">
+		SELECT BOOK_CODE
+			, BOOK_TITLE
+			, PUBLISHER
+			, AUTHOR
+			, BOOK_PUBLICATION_DATE
+			, BOOK_CLASS
+			, BOOK_CLASS_NAME
+			, BOOK_IMAGE_NAME
+		FROM BOOK_INFO_VIEW
+		WHERE BOOK_CODE IN <foreach collection="thisMonthRankedBookList" item="bookCode" open="(" separator="," close=")">#{bookCode}</foreach>
+		ORDER BY DECODE(BOOK_CODE, <foreach collection="thisMonthRankedBookList" item="bookCode" separator="," close=")" index="index">#{bookCode}, ${index}</foreach>
+	</select>
+	
+</mapper>

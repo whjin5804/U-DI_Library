@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 모든 SQL문을 mapper태그 안에 작성 -->
+<mapper namespace="boardMapper">
+
+	<resultMap type="Audi_Lib.board.vo.BoardVO" id="board">
+		<id column="BOARD_CODE"		 			property="boardCode"/>
+		<result column="BOARD_TITLE" 			property="boardTitle"/>
+		<result column="BOARD_CONTENT" 			property="boardContent"/>
+		<result column="REG_MEMBER" 			property="regMember"/>
+		<result column="REG_DATE" 				property="regDate"/>
+		<result column="IS_SECURITY" 			property="isSecurity"/>
+		<result column="IS_NOTICE" 				property="isNotice"/>
+		<result column="FILE_NAME" 				property="fileName"/>
+		<result column="READ_CNT" 				property="readCnt"/>
+		<result column="SEQ" 					property="seq"/>
+		<result column="RN" 					property="rn"/>
+		<result column="MEMBER_NAME" 			property="memberName"/>
+		<result column="IS_ADMIN" 				property="isAdmin"/>
+	</resultMap>
+	
+	<resultMap type="Audi_Lib.board.vo.BoardNoticeInfoVO" id="boardNotice">
+		<id column="BOARD_CODE"		 			property="boardCode"/>
+		<result column="BOARD_TITLE" 			property="boardTitle"/>
+		<result column="BOARD_CONTENT" 			property="boardContent"/>
+		<result column="REG_MEMBER" 			property="regMember"/>
+		<result column="REG_DATE" 				property="regDate"/>
+		<result column="IS_NOTICE" 				property="isNotice"/>
+		<result column="READ_CNT" 				property="readCnt"/>
+		<result column="SEQ" 					property="seq"/>
+		<result column="MEMBER_NAME" 			property="memberName"/>
+		<result column="RN" 					property="rn"/>
+	</resultMap>
+	
+	<!-- 페이징 처리 -->
+	<select id="countBoardInfo" resultType="int">
+		SELECT COUNT(*) FROM BOARD_INFO
+	</select>
+	
+	<select id="selectBoardList" resultMap="board">
+			SELECT BOARD_CODE
+					        , BOARD_TITLE
+                            , MEMBER_NAME
+					        , BOARD_CONTENT
+					        , REG_MEMBER
+					        , IS_ADMIN
+					        , TO_CHAR(REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+					        , IS_SECURITY
+					        , IS_NOTICE
+					        , FILE_NAME
+					        , READ_CNT
+					        , SEQ
+		        			, RN
+		FROM (
+			SELECT ROWNUM RN, BOARD_CODE
+					        , BOARD_TITLE
+					        , BOARD_CONTENT
+					        , REG_MEMBER
+                            , MEMBER_NAME
+                            , IS_ADMIN
+					        , REG_DATE
+					        , IS_SECURITY
+					        , IS_NOTICE
+					        , FILE_NAME
+					        , READ_CNT
+					        , SEQ
+				FROM   (
+						SELECT BOARD_CODE
+					        , BOARD_TITLE
+					        , BOARD_CONTENT
+					        , B.REG_MEMBER
+                            , L.MEMBER_NAME
+                            , L.IS_ADMIN
+					        , B.REG_DATE
+					        , IS_SECURITY
+					        , IS_NOTICE
+					        , FILE_NAME
+					        , READ_CNT
+					        , SEQ
+						FROM BOARD_INFO B JOIN LIB_MEMBER L
+                        ON B.REG_MEMBER = L.MEMBER_CODE
+						)
+				) 
+		WHERE (RN BETWEEN #{start} AND #{end})
+<!-- 		AND IS_NOTICE = 0 -->
+		<if test="keyword != null and !keyword.equals('')">
+		AND BOARD_TITLE LIKE '%' || #{keyword} || '%'
+		</if>
+		ORDER BY IS_NOTICE DESC, RN DESC
+	</select>	
+	
+	<select id="selectBoardNoticeInfo" resultMap="boardNotice">
+		SELECT BOARD_CODE
+				, BOARD_TITLE
+				, BOARD_CONTENT
+				, REG_MEMBER
+				, TO_CHAR(REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+				, READ_CNT
+				, SEQ
+		FROM BOARD_NOTICE_INFO
+	</select>
+	
+	
+	<select id="detailBoard" resultMap="board">
+		SELECT BOARD_CODE
+					        , BOARD_TITLE
+					        , BOARD_CONTENT
+					        , REG_MEMBER
+					        , TO_CHAR(B.REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+					        , IS_SECURITY
+					        , IS_NOTICE
+					        , FILE_NAME
+					        , READ_CNT
+					        , L.MEMBER_NAME
+		FROM BOARD_INFO B JOIN LIB_MEMBER L
+        ON B.REG_MEMBER = L.MEMBER_CODE
+		WHERE BOARD_CODE = #{boardCode}
+	</select>
+	
+	<select id="detailBoardNotice" resultMap="boardNotice">
+		SELECT BOARD_CODE
+					        , BOARD_TITLE
+					        , BOARD_CONTENT
+					        , REG_MEMBER
+					        , TO_CHAR(B.REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+					        , IS_NOTICE
+					        , READ_CNT
+					        , L.MEMBER_NAME
+		FROM BOARD_NOTICE_INFO B JOIN LIB_MEMBER L
+        ON B.REG_MEMBER = L.MEMBER_CODE
+		WHERE BOARD_CODE = #{boardCode}
+	</select>
+	
+	<update id="updateCount">
+		UPDATE BOARD_INFO
+		SET READ_CNT = READ_CNT + 1
+		WHERE BOARD_CODE = #{boardCode}
+	</update>
+	
+	<update id="updateCountNotice">
+		UPDATE BOARD_NOTICE_INFO
+		SET READ_CNT = READ_CNT + 1
+		WHERE BOARD_CODE = #{boardCode}
+	</update>
+	
+	
+	<insert id="insertBoard">
+		INSERT INTO BOARD_INFO(
+						BOARD_CODE
+						, BOARD_TITLE
+						, BOARD_CONTENT
+						, REG_MEMBER
+						, IS_SECURITY
+						, IS_NOTICE
+						, SEQ
+		) VALUES(
+					(SELECT 'BOARD_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(BOARD_CODE, 7))) + 1, 1), 3, '0') FROM BOARD_INFO)
+					, #{boardTitle}
+					, #{boardContent}
+					, #{regMember}
+					, #{isSecurity}
+					, 0
+					, SEQ.NEXTVAL
+		)
+	</insert>
+	
+	<delete id="deleteBoard">
+		DELETE BOARD_INFO
+		WHERE BOARD_CODE = #{boardCode}
+	</delete>
+	
+	<delete id="deleteBoardNotice">
+		DELETE BOARD_NOTICE_INFO
+		WHERE BOARD_CODE = #{boardCode}
+	</delete>
+	
+	<update id="updateBoard">
+		UPDATE BOARD_INFO
+		SET BOARD_CODE = #{boardCode}
+		, BOARD_TITLE = #{boardTitle}
+		, BOARD_CONTENT = #{boardContent}
+		, IS_SECURITY = #{isSecurity}
+		WHERE BOARD_CODE = #{boardCode}
+	</update>
+	
+	
+	<!-- 공지사항 등록/해제 -->
+	<update id="updateBoardNotice">
+				INSERT INTO BOARD_NOTICE_INFO(
+						BOARD_CODE
+						, BOARD_TITLE
+						, BOARD_CONTENT
+						, REG_DATE
+						, REG_MEMBER
+						, SEQ
+		) VALUES(
+					(SELECT 'BOARD_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(BOARD_CODE, 7))) + 1, 1), 3, '0') FROM BOARD_NOTICE_INFO)
+					, #{boardTitle}
+					, #{boardContent}
+					, #{regDate}
+					, #{regMember}
+					, SEQ.NEXTVAL
+		)
+	</update>
+	
+	
+	<!-- 홈화면 공지만 -->
+	<select id="selectBoardOfNotice" resultMap="board">
+		SELECT 
+			BOARD_CODE
+			, BOARD_TITLE
+	        , TO_CHAR(REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+	        , IS_NOTICE
+	        , READ_CNT FROM BOARD_INFO
+		WHERE IS_NOTICE = 1
+		AND ROWNUM &lt; 6
+	</select>	
+</mapper>
+
